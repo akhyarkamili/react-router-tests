@@ -1,50 +1,48 @@
-# React + TypeScript + Vite
+# React Router Testing Example
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This project demonstrates testing strategies for React Router v7, focusing on end-to-end testing with Playwright.
 
-Currently, two official plugins are available:
+## Tech Stack
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- React + TypeScript + Vite
+- React Router v7
+- Playwright (E2E Testing)
 
-## Expanding the ESLint configuration
+## Tests Implemented
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+### End-to-End Tests
 
-- Configure the top-level `parserOptions` property like this:
+1. **404 Page Testing**
+   ```typescript
+   test('should show 404 page for non-existent routes', async ({ page }) => {
+     await page.goto('/non-existent-route');
+     await expect(page.getByText('404')).toBeVisible();
+   });
+   ```
 
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+2. **Route Navigation and State**
+   ```typescript
+   test('should reset state during navigation', async ({ page }) => {
+     await page.goto('/');
+     await page.getByRole('button', { name: 'Increment' }).click();
+     await expect(page.getByText('Count: 1')).toBeVisible();
+     
+     await page.getByRole('link', { name: 'About' }).click();
+     await page.getByRole('link', { name: 'Home' }).click();
+     await expect(page.getByText('Count: 0')).toBeVisible();
+   });
+   ```
+
+## Running the Tests
+
+```bash
+npm install
+npm run dev
+npx playwright test
 ```
 
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
+## Key Learnings
 
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
-
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
-```
+- React Router v7 resets component state during navigation by default
+- Playwright effectively tests both client-side navigation and direct URL access
+- Component state management needs to be handled separately if persistence is needed during navigation
